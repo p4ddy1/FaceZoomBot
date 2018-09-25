@@ -1,5 +1,6 @@
 using FaceZoomBot.Jobs;
 using FaceZoomBot.MessageQueue;
+using FaceZoomBot.Models;
 
 namespace FaceZoomBot.Workers
 {
@@ -18,13 +19,13 @@ namespace FaceZoomBot.Workers
         {
             using (QueueClient)
             {
-                if (Job.Message != "/start")
+                if (Job.TelegramChat.Message != "/start" || !Job.TelegramChat.IsPrivate)
                     return;
-            
+
                 var queue = Factory.CreateQueue(QueueClient);
-                var sendTextMessageJob = new SendTextMessageJob(
-                    Job.ChatId,
+                var telegramChat = new TelegramChat(Job.TelegramChat.ChatId, true,
                     @"Hey. I'm the FaceZoomBot. Send me your photos and I will zoom on all faces, if I can find any. Currently, I'm in an early alpha state, so expect a few bugs. If you have any questions about me ask my creator @Melun. Just send me a Photo to start. (Not as a file please). If I don't answer, I have found nothing.");
+                var sendTextMessageJob = new SendTextMessageJob(telegramChat);
                 queue.AddJobToQueue(sendTextMessageJob);
             }
         }

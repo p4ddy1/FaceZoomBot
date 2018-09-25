@@ -1,6 +1,7 @@
 using System.Linq;
 using FaceZoomBot.Jobs;
 using FaceZoomBot.MessageQueue;
+using FaceZoomBot.Models;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.Enums;
 
@@ -29,28 +30,30 @@ namespace FaceZoomBot.Telegram
         private void OnMessageReceived(object sender, MessageEventArgs eventArgs)
         {
             var message = eventArgs.Message;
+            bool isPrivateChat = message.Chat.Type == ChatType.Private;
 
-            if (message.Type == MessageType.Text
-                && message.Chat.Type == ChatType.Private)
+            if (message.Type == MessageType.Text && isPrivateChat)
             {
-                HandleNewText(message.Chat.Id, message.Text);
+                HandleNewPrivateText(message.Chat.Id, message.Text);
             }
 
             if (message.Type == MessageType.Photo)
             {
-                HandleNewImage(message.Chat.Id, message.Photo.LastOrDefault()?.FileId);
+                HandleNewImage(message.Chat.Id, isPrivateChat, message.Photo.LastOrDefault()?.FileId);
             }
         }
 
-        private void HandleNewText(long chatId, string message)
+        private void HandleNewPrivateText(long chatId, string message)
         {
-            var messageReceivedJob = new TextMessageReceivedJob(chatId, message);
+            var telegramChat = new TelegramChat(chatId, true, message);
+            var messageReceivedJob = new TextMessageReceivedJob(telegramChat);
             Queue.AddJobToQueue(messageReceivedJob);
         }
 
-        private void HandleNewImage(long chatId, string photoFileId)
+        private void HandleNewImage(long chatId, bool isPrivateChat, string photoFileId)
         {
-            var imageReceivedJob = new ImageReceivedJob(chatId, photoFileId);
+            var telegramChat = new TelegramChat(chatId, isPrivateChat);
+            var imageReceivedJob = new ImageReceivedJob(telegramChat, photoFileId);
             Queue.AddJobToQueue(imageReceivedJob);
         }
     }

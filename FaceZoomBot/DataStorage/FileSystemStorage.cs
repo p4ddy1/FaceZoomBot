@@ -2,24 +2,29 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
+using FaceZoomBot.Configuration;
 
 namespace FaceZoomBot.DataStorage
 {
-    public class FileSystemStorage : IStorage
+    public class FileSystemStorage
     {
         private string BasePath { get; set; }
         private string FacesPath { get; }
+        private Config Config { get; }
 
         public FileSystemStorage()
         {
-            BasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "var/images");
+            var factory = new Factory();
+            Config = factory.LoadConfig();
+
+            BasePath = Path.Combine(Config.General.DataDirectoryPath, "images");
 
             if (Directory.Exists(BasePath) == false)
             {
                 Directory.CreateDirectory(BasePath);
             }
 
-            FacesPath = Path.Combine(BasePath, "faces");
+            FacesPath = Path.Combine(Config.General.DataDirectoryPath, "faces");
 
             if (Directory.Exists(FacesPath) == false)
             {
@@ -37,6 +42,12 @@ namespace FaceZoomBot.DataStorage
             }
 
             return fileName;
+        }
+
+        public void DeleteImage(string fileName)
+        {
+            var imagePath = Path.Combine(BasePath, fileName);
+            File.Delete(imagePath);
         }
 
         public string GetFaceBasePath(string sourceImagePath)
@@ -68,7 +79,9 @@ namespace FaceZoomBot.DataStorage
             var random = new Random();
             random.NextBytes(randomBytes);
             var hash = algorithm.ComputeHash(randomBytes);
-            return BitConverter.ToString(hash).Replace("-", "");
+            return BitConverter.ToString(hash)
+                .Replace("-", "")
+                .ToLower();
         }
 
         public IStream LoadImage(string fileName)

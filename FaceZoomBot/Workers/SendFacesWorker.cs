@@ -11,18 +11,19 @@ namespace FaceZoomBot.Workers
     {
         private SendFacesJob Job { get; }
         private TelegramClient TelegramClient { get; }
-        private IStorage Storage { get; }
+        private FileSystemStorage Storage { get; }
 
         public SendFacesWorker(SendFacesJob job) : base(job)
         {
             Job = job;
             TelegramClient = Factory.CreateTelegramClient();
-            Storage = Factory.CreateStorageFactory().CreateStorage();
+            Storage = Factory.CreateFileSystemStorage();
         }
 
         public override void DoWork()
         {
             SendAllFacesForImage(Job.ImagePath);
+            Storage.DeleteImage(Job.ImagePath);
         }
 
         private async void SendAllFacesForImage(string imagePath)
@@ -35,9 +36,11 @@ namespace FaceZoomBot.Workers
                     using (var faceFileStream = File.OpenRead(facePath))
                     {
                         var inputOnlineFile = new InputOnlineFile(faceFileStream);
-                        await TelegramClient.BotClient.SendPhotoAsync(Job.ChatId, inputOnlineFile);
+                        await TelegramClient.BotClient.SendPhotoAsync(Job.TelegramChat.ChatId, inputOnlineFile);
                     }
                 }
+
+                Directory.Delete(facesBasePath, true);
             }
             catch (Exception ex)
             {

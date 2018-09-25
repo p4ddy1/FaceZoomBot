@@ -7,12 +7,12 @@ namespace FaceZoomBot.Telegram
     {
         public TelegramBotClient BotClient { get; }
         private Config Config { get; }
-        
+
         public TelegramClient()
         {
             var factory = new Factory();
             Config = factory.LoadConfig();
-            
+
             BotClient = new TelegramBotClient(Config.Telegram.ApiKey);
         }
 

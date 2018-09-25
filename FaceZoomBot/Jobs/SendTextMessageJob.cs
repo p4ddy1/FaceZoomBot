@@ -1,16 +1,15 @@
+using FaceZoomBot.Models;
 using FaceZoomBot.Workers;
 
 namespace FaceZoomBot.Jobs
 {
     public class SendTextMessageJob : Job
     {
-        public long ChatId { get; set; }
-        public string Message { get; set; }
+        public TelegramChat TelegramChat { get; set; }
 
-        public SendTextMessageJob(long chatId, string message)
+        public SendTextMessageJob(TelegramChat telegramChat)
         {
-            ChatId = chatId;
-            Message = message;
+            TelegramChat = telegramChat;
         }
 
         public override Worker GetWorker()

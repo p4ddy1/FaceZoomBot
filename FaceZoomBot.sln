@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceZoomBot", "FaceZoomBot\FaceZoomBot.csproj", "{C4654967-E2FA-41A8-B2D8-47C09499446F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceZoomBotTests", "FaceZoomBotTests\FaceZoomBotTests.csproj", "{95B81FDE-B001-4861-B0F9-61CEE3927AA4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +13,5 @@ Global
 		{C4654967-E2FA-41A8-B2D8-47C09499446F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4654967-E2FA-41A8-B2D8-47C09499446F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C4654967-E2FA-41A8-B2D8-47C09499446F}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{95B81FDE-B001-4861-B0F9-61CEE3927AA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{95B81FDE-B001-4861-B0F9-61CEE3927AA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{95B81FDE-B001-4861-B0F9-61CEE3927AA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{95B81FDE-B001-4861-B0F9-61CEE3927AA4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -16,7 +16,7 @@ namespace FaceZoomBot.Workers
 
         public override void DoWork()
         {
-            TelegramClient.SendMessage(Job.ChatId, Job.Message);
+            TelegramClient.SendMessage(Job.TelegramChat.ChatId, Job.TelegramChat.Message);
         }
     }
 }

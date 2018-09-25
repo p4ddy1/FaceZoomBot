@@ -1,15 +1,16 @@
+using FaceZoomBot.Models;
 using FaceZoomBot.Workers;
 
 namespace FaceZoomBot.Jobs
 {
     public class SendFacesJob : Job
     {
-        public long ChatId { get; set; }
+        public TelegramChat TelegramChat { get; set; }
         public string ImagePath { get; set; }
 
-        public SendFacesJob(long chatId, string imagePath)
+        public SendFacesJob(TelegramChat telegramChat, string imagePath)
         {
-            ChatId = chatId;
+            TelegramChat = telegramChat;
             ImagePath = imagePath;
         }
 

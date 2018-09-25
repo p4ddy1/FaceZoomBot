@@ -6,7 +6,7 @@ using FaceZoomBot.Telegram;
 namespace FaceZoomBot
 {
     public class Factory
-    { 
+    {
         public QueueClient CreateQueueClient()
         {
             return new QueueClient();
@@ -17,9 +17,9 @@ namespace FaceZoomBot
             return new Queue(client);
         }
 
-        public StorageFactory CreateStorageFactory()
+        public FileSystemStorage CreateFileSystemStorage()
         {
-            return new StorageFactory();
+            return new FileSystemStorage();
         }
 
         public TelegramClient CreateTelegramClient()

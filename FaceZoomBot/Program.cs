@@ -17,7 +17,7 @@ namespace FaceZoomBot
             }
 
             var factory = new Factory();
-            
+
             switch (args[0])
             {
                 case "work":
@@ -29,15 +29,16 @@ namespace FaceZoomBot
                         Console.WriteLine("Listening to queue...");
                         Console.ReadLine();
                     }
+
                     break;
-                
+
                 case "send":
                     Console.WriteLine("Staring as Telegram Handler!");
                     var telegramHandler = new TelegramHandler();
                     telegramHandler.Listen();
                     Console.ReadLine();
                     break;
-                
+
                 default:
                     Console.WriteLine("No valid mode given");
                     return;

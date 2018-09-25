@@ -11,14 +11,14 @@ namespace FaceZoomBot.Workers
     {
         private ImageReceivedJob Job { get; }
         private TelegramClient TelegramClient { get; }
-        private IStorage Storage { get; }
+        private FileSystemStorage Storage { get; }
         private QueueClient QueueClient { get; }
 
         public ImageReceivedWorker(ImageReceivedJob job) : base(job)
         {
             Job = job;
             TelegramClient = Factory.CreateTelegramClient();
-            Storage = Factory.CreateStorageFactory().CreateStorage();
+            Storage = Factory.CreateFileSystemStorage();
             QueueClient = Factory.CreateQueueClient();
         }
 
@@ -39,7 +39,7 @@ namespace FaceZoomBot.Workers
                     using (QueueClient)
                     {
                         var queue = Factory.CreateQueue(QueueClient);
-                        var zoomSeFacesJob = new ZoomSeFacesJob(Job.ChatId, filename);
+                        var zoomSeFacesJob = new ZoomSeFacesJob(Job.TelegramChat, filename);
                         queue.AddJobToQueue(zoomSeFacesJob);
                     }
                 }

@@ -1,4 +1,8 @@
 {
+  "General": {
+    "ShapePredictorPath": "shape_predictor_5_face_landmarks.dat"
+    "DataDirectoryPath": "var/data"
+  },
   "Telegram": {
     "ApiKey": ""
   },

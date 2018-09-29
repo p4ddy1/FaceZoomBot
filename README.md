@@ -12,4 +12,3 @@ If you want to try it message: `@face_zoom_bot` in Telegram.
 * Don't ack messages directly
 * Priority queues
 * Logging
-* Garbage collect old data

@@ -1,6 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
 namespace FaceZoomBot.Configuration
 {
     public class RabbitMQ

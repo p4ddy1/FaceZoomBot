@@ -1,78 +1,112 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
 using FaceZoomBot.Configuration;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace FaceZoomBot.DataStorage
 {
-    public class FileSystemStorage
+    public class FileSystemStorage : IStorage
     {
-        private string BasePath { get; set; }
-        private string FacesPath { get; }
         private Config Config { get; }
-
+        private string BasePath { get; }
+        private string FacesBasePath { get; }
+        private IImageEncoder Encoder { get; }
+        private IImageDecoder Decoder { get; }
+        
         public FileSystemStorage()
         {
             var factory = new Factory();
             Config = factory.LoadConfig();
-
+            
             BasePath = Path.Combine(Config.General.DataDirectoryPath, "images");
 
-            if (Directory.Exists(BasePath) == false)
-            {
-                Directory.CreateDirectory(BasePath);
-            }
+            CreateDirectory(BasePath);
+            
+            FacesBasePath = Path.Combine(Config.General.DataDirectoryPath, "faces");
 
-            FacesPath = Path.Combine(Config.General.DataDirectoryPath, "faces");
-
-            if (Directory.Exists(FacesPath) == false)
-            {
-                Directory.CreateDirectory(FacesPath);
-            }
+            CreateDirectory(FacesBasePath);
+            
+            Encoder = new JpegEncoder();
+            Decoder = new JpegDecoder();;
         }
-
-        public string SaveImage(Stream imageStream, string fileName)
+        
+        public void SaveImage(Image<Rgb24> image, string imageIdentifier)
         {
-            var imagePath = Path.Combine(BasePath, fileName);
+            var imagePath = Path.Combine(BasePath, imageIdentifier);
             using (var saveStream = File.Open(imagePath, FileMode.Create))
             {
-                imageStream.Seek(0, SeekOrigin.Begin);
-                imageStream.CopyTo(saveStream);
+                image.Save(saveStream, Encoder);
             }
-
-            return fileName;
         }
 
-        public void DeleteImage(string fileName)
+        public void SaveFace(Image<Rgb24> image, string imageIdentifier)
         {
-            var imagePath = Path.Combine(BasePath, fileName);
+            var facesPathForImage = Path.Combine(FacesBasePath, imageIdentifier);
+            CreateDirectory(facesPathForImage);
+            var facePath = Path.Combine(facesPathForImage, GetRandomIdentifier());
+            using (var saveStream = File.Open(facePath, FileMode.Create))
+            {
+                image.Save(saveStream, Encoder);
+            }
+        }
+
+        public Image<Rgb24> LoadImage(string imageIdentifier)
+        {
+            var imagePath = Path.Combine(BasePath, imageIdentifier);
+            return Image.Load<Rgb24>(imagePath,Decoder);
+        }
+        
+        public Image<Rgb24> LoadFace(string imageIdentifier, string faceIdentifier)
+        {
+            var facesPathForImage = Path.Combine(FacesBasePath, imageIdentifier);
+            var facePath = Path.Combine(facesPathForImage, faceIdentifier);
+            return Image.Load<Rgb24>(facePath,Decoder);
+        }
+
+        public void DeleteImage(string imageIdentifier)
+        {
+            var imagePath = Path.Combine(BasePath, imageIdentifier);
             File.Delete(imagePath);
         }
 
-        public string GetFaceBasePath(string sourceImagePath)
+        public void DeleteFace(string imageIdentifier, string faceIdentifier)
         {
-            var facesRoot = Path.Combine(FacesPath, sourceImagePath);
-            return facesRoot;
+            var facesPathForImage = Path.Combine(FacesBasePath, imageIdentifier);
+            var facePath = Path.Combine(facesPathForImage, faceIdentifier);
+            File.Delete(facePath);
         }
 
-        public string GenerateFacePath(string sourceImagePath)
+        public void DeleteAllFacesForImage(string imageIdentifier)
         {
-            var facesRoot = Path.Combine(FacesPath, sourceImagePath);
-            if (Directory.Exists(facesRoot) == false)
+            var facesPathForImage = Path.Combine(FacesBasePath, imageIdentifier);
+            Directory.Delete(facesPathForImage, true);
+        }
+
+        public List<string> GetAllFaceIdentifiersForImage(string imageIdentifier)
+        {
+            var identifierList = new List<string>();
+            var facesPathForImage = Path.Combine(FacesBasePath, imageIdentifier);
+            foreach (var facePath in Directory.GetFiles(facesPathForImage))
             {
-                Directory.CreateDirectory(facesRoot);
+                identifierList.Add(facePath);
             }
-
-            return Path.Combine(facesRoot, GenerateFileName());
+            return identifierList;
         }
 
-        public string GetBasePath()
+        public void CreateDirectory(string path)
         {
-            return BasePath;
+            if (Directory.Exists(path) == false)
+            {
+                Directory.CreateDirectory(path);
+            }
         }
 
-        public string GenerateFileName()
+        public string GetRandomIdentifier()
         {
             var algorithm = SHA384.Create();
             var randomBytes = new byte[1024];
@@ -82,11 +116,6 @@ namespace FaceZoomBot.DataStorage
             return BitConverter.ToString(hash)
                 .Replace("-", "")
                 .ToLower();
-        }
-
-        public IStream LoadImage(string fileName)
-        {
-            throw new NotImplementedException();
         }
     }
 }

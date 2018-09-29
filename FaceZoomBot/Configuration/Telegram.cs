@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace FaceZoomBot.Configuration
 {
     public class Telegram

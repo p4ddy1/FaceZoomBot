@@ -17,7 +17,7 @@ namespace FaceZoomBot
             return new Queue(client);
         }
 
-        public FileSystemStorage CreateFileSystemStorage()
+        public IStorage CreateStorage()
         {
             return new FileSystemStorage();
         }

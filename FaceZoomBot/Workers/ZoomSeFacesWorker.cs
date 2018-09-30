@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net.Mime;
+using System.Reflection.Metadata.Ecma335;
 using DlibDotNet;
 using FaceZoomBot.Configuration;
 using FaceZoomBot.DataStorage;
@@ -30,7 +31,7 @@ namespace FaceZoomBot.Workers
             Config = Factory.LoadConfig();
         }
 
-        public override void DoWork()
+        public override bool DoWork()
         {
             try
             {
@@ -63,7 +64,7 @@ namespace FaceZoomBot.Workers
                     }
 
                     Storage.DeleteImage(Job.ImagePath);
-                    return;
+                    return true;
                 }
 
                 using (QueueClient)
@@ -76,7 +77,10 @@ namespace FaceZoomBot.Workers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                return false;
             }
+
+            return true;
         }
 
         private Array2D<RgbPixel> ImageToArray2D(Image<Rgb24> image)

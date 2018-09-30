@@ -23,8 +23,8 @@ namespace FaceZoomBot
                 case "work":
                     using (var client = factory.CreateQueueClient())
                     {
-                        var workerHandler = new WorkerHandler();
                         var queue = factory.CreateQueue(client);
+                        var workerHandler = factory.CreateWorkerHandler(queue);
                         queue.ListenToQueue(workerHandler);
                         Console.WriteLine("Listening to queue...");
                         Console.ReadLine();

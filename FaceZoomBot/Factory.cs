@@ -2,6 +2,7 @@ using FaceZoomBot.Configuration;
 using FaceZoomBot.DataStorage;
 using FaceZoomBot.MessageQueue;
 using FaceZoomBot.Telegram;
+using FaceZoomBot.Workers;
 
 namespace FaceZoomBot
 {
@@ -10,6 +11,11 @@ namespace FaceZoomBot
         public QueueClient CreateQueueClient()
         {
             return new QueueClient();
+        }
+
+        public WorkerHandler CreateWorkerHandler(Queue queue)
+        {
+            return new WorkerHandler(queue);
         }
 
         public Queue CreateQueue(QueueClient client)

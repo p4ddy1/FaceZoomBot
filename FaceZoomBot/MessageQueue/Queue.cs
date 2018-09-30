@@ -35,11 +35,17 @@ namespace FaceZoomBot.MessageQueue
             QueueClient.RegisterListener(ReceiveFromQueue, QueueClient.QueuePrioMid);
         }
 
-        public void ReceiveFromQueue(object channel, BasicDeliverEventArgs eventArgs)
+        public void ReceiveFromQueue(object sender, BasicDeliverEventArgs eventArgs)
         {
             var message = Encoding.UTF8.GetString(eventArgs.Body);
+            var consumer = (EventingBasicConsumer) sender;
             var job = DeserializeJob(message);
-            WorkerHandler.HandleJob(job);
+            WorkerHandler.HandleJob(
+                job, 
+                consumer.Model,
+                eventArgs.DeliveryTag,
+                eventArgs.Redelivered
+            );
         }
 
         private string SerializeJob(Job job)

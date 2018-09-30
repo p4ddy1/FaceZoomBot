@@ -10,6 +10,7 @@ namespace FaceZoomBot.MessageQueue
     public class QueueClient : IDisposable
     {
         public const string QueuePrioMid = "mid";
+        public const string QueueDead = "dead";
 
         private ConnectionFactory ConnectionFactory { get; }
         private IConnection Connection { get; }
@@ -44,9 +45,21 @@ namespace FaceZoomBot.MessageQueue
                 arguments: null);
 
             var consumerMid = new EventingBasicConsumer(channelMid);
+            
+            var channelDead = Connection.CreateModel();
+            channelDead.QueueDeclare(
+                queue: QueueDead,
+                durable: false,
+                autoDelete: false,
+                exclusive: false,
+                arguments: null);
 
+            var consumerDead = new EventingBasicConsumer(channelDead);
+            
             ChannelDictionary.Add(QueuePrioMid, channelMid);
+            ChannelDictionary.Add(QueueDead, channelDead);
             ConsumerDictionary.Add(QueuePrioMid, consumerMid);
+            ConsumerDictionary.Add(QueueDead, consumerDead);
         }
 
         public void Publish(string message, string queue)
@@ -62,7 +75,11 @@ namespace FaceZoomBot.MessageQueue
         public void RegisterListener(EventHandler<BasicDeliverEventArgs> listenerFunc, string queue)
         {
             ConsumerDictionary[queue].Received += listenerFunc;
-            ChannelDictionary[queue].BasicConsume(queue, true, ConsumerDictionary[queue]);
+            ChannelDictionary[queue].BasicConsume(
+                queue, 
+                false, 
+                ConsumerDictionary[queue]
+            );
         }
 
         public void Dispose()

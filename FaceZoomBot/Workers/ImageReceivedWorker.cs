@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using FaceZoomBot.DataStorage;
 using FaceZoomBot.Jobs;
 using FaceZoomBot.MessageQueue;
@@ -25,33 +26,36 @@ namespace FaceZoomBot.Workers
             QueueClient = Factory.CreateQueueClient();
         }
 
-        public override void DoWork()
-        {
-            DownloadImage();
-        }
-
-        private async void DownloadImage()
+        public override bool DoWork()
         {
             try
             {
-                var imageFile = await TelegramClient.BotClient.GetFileAsync(Job.ImageFileId);
-                using (var imageStream = new MemoryStream())
-                {
-                    await TelegramClient.BotClient.DownloadFileAsync(imageFile.FilePath, imageStream);
-                    var identifier = Storage.GetRandomIdentifier();
-                    var image = Image.Load<Rgb24>(imageStream, new JpegDecoder());
-                    Storage.SaveImage(image, identifier);
-                    using (QueueClient)
-                    {
-                        var queue = Factory.CreateQueue(QueueClient);
-                        var zoomSeFacesJob = new ZoomSeFacesJob(Job.TelegramChat, identifier);
-                        queue.AddJobToQueue(zoomSeFacesJob);
-                    }
-                }
+                DownloadImage().Wait();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                return false;
+            }
+            
+            return true;
+        }
+
+        private async Task DownloadImage()
+        {
+            var imageFile = await TelegramClient.BotClient.GetFileAsync(Job.ImageFileId);
+            using (var imageStream = new MemoryStream())
+            {
+                await TelegramClient.BotClient.DownloadFileAsync(imageFile.FilePath, imageStream);
+                var identifier = Storage.GetRandomIdentifier();
+                var image = Image.Load<Rgb24>(imageStream, new JpegDecoder());
+                Storage.SaveImage(image, identifier);
+                using (QueueClient)
+                {
+                    var queue = Factory.CreateQueue(QueueClient);
+                    var zoomSeFacesJob = new ZoomSeFacesJob(Job.TelegramChat, identifier);
+                    queue.AddJobToQueue(zoomSeFacesJob);
+                }
             }
         }
     }

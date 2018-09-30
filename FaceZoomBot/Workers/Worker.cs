@@ -13,6 +13,6 @@ namespace FaceZoomBot.Workers
             Factory = new Factory();
         }
 
-        public abstract void DoWork();
+        public abstract bool DoWork();
     }
 }

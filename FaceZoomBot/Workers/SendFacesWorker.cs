@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using FaceZoomBot.DataStorage;
 using FaceZoomBot.Jobs;
 using FaceZoomBot.Telegram;
@@ -21,13 +22,22 @@ namespace FaceZoomBot.Workers
             Storage = Factory.CreateStorage();
         }
 
-        public override void DoWork()
+        public override bool DoWork()
         {
-            SendAllFacesForImage(Job.ImagePath);
-            //Storage.DeleteImage(Job.ImagePath);
+            try
+            {
+                SendAllFacesForImage(Job.ImagePath).Wait();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+
+            return true;
         }
 
-        private async void SendAllFacesForImage(string imagePath)
+        private async Task SendAllFacesForImage(string imagePath)
         {
             try
             {

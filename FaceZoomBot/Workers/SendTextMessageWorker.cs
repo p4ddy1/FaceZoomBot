@@ -1,3 +1,4 @@
+using System;
 using FaceZoomBot.Jobs;
 using FaceZoomBot.Telegram;
 
@@ -14,9 +15,18 @@ namespace FaceZoomBot.Workers
             TelegramClient = Factory.CreateTelegramClient();
         }
 
-        public override void DoWork()
+        public override bool DoWork()
         {
-            TelegramClient.SendMessage(Job.TelegramChat.ChatId, Job.TelegramChat.Message);
+            try
+            {
+                TelegramClient.SendMessage(Job.TelegramChat.ChatId, Job.TelegramChat.Message);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            return true;
         }
     }
 }

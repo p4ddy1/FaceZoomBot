@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using FaceZoomBot.Jobs;
 using FaceZoomBot.MessageQueue;
 using FaceZoomBot.Models;
@@ -15,18 +17,27 @@ namespace FaceZoomBot.Workers
             QueueClient = Factory.CreateQueueClient();
         }
 
-        public override void DoWork()
+        public override bool DoWork()
         {
-            using (QueueClient)
+            try
             {
-                if (Job.TelegramChat.Message != "/start" || !Job.TelegramChat.IsPrivate)
-                    return;
+                using (QueueClient)
+                {
+                    if (Job.TelegramChat.Message != "/start" || !Job.TelegramChat.IsPrivate)
+                        return true;
 
-                var queue = Factory.CreateQueue(QueueClient);
-                var telegramChat = new TelegramChat(Job.TelegramChat.ChatId, true,
-                    @"Hey. I'm the FaceZoomBot. Send me your photos and I will zoom on all faces, if I can find any. Currently, I'm in an early alpha state, so expect a few bugs. If you have any questions about me ask my creator @Melun. Just send me a Photo to start. (Not as a file please). If I don't answer, I have found nothing.");
-                var sendTextMessageJob = new SendTextMessageJob(telegramChat);
-                queue.AddJobToQueue(sendTextMessageJob);
+                    var queue = Factory.CreateQueue(QueueClient);
+                    var telegramChat = new TelegramChat(Job.TelegramChat.ChatId, true,
+                        @"Hey. I'm the FaceZoomBot. Send me your photos and I will zoom on all faces, if I can find any. Currently, I'm in an early alpha state, so expect a few bugs. If you have any questions about me ask my creator @Melun. Just send me a Photo to start. (Not as a file please). If I don't answer, I have found nothing.");
+                    var sendTextMessageJob = new SendTextMessageJob(telegramChat);
+                    queue.AddJobToQueue(sendTextMessageJob);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
             }
         }
     }

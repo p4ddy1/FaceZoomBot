@@ -8,7 +8,5 @@ If you want to try it message: `@face_zoom_bot` in Telegram.
 ## Todo
 
 * Error handling
-* Requeue failed jobs
-* Don't ack messages directly
 * Priority queues
 * Logging

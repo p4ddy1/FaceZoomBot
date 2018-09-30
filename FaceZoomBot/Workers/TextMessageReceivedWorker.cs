@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using FaceZoomBot.Jobs;
 using FaceZoomBot.MessageQueue;
 using FaceZoomBot.Models;

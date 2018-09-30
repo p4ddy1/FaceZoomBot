@@ -1,7 +1,4 @@
 using System;
-using System.IO;
-using System.Net.Mime;
-using System.Reflection.Metadata.Ecma335;
 using DlibDotNet;
 using FaceZoomBot.Configuration;
 using FaceZoomBot.DataStorage;
@@ -9,9 +6,6 @@ using FaceZoomBot.Jobs;
 using FaceZoomBot.MessageQueue;
 using FaceZoomBot.Models;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Bmp;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace FaceZoomBot.Workers

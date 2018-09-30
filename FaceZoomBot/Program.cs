@@ -1,6 +1,4 @@
 ﻿using System;
-using FaceZoomBot.Configuration;
-using FaceZoomBot.Workers;
 using FaceZoomBot.Telegram;
 
 namespace FaceZoomBot

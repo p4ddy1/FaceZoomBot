@@ -48,8 +48,10 @@ namespace FaceZoomBot.Workers
             {
                 await TelegramClient.BotClient.DownloadFileAsync(imageFile.FilePath, imageStream);
                 var identifier = Storage.GetRandomIdentifier();
-                var image = Image.Load<Rgb24>(imageStream, new JpegDecoder());
-                Storage.SaveImage(image, identifier);
+                using (var image = Image.Load<Rgb24>(imageStream, new JpegDecoder()))
+                {
+                    Storage.SaveImage(image, identifier);
+                }
                 using (QueueClient)
                 {
                     var queue = Factory.CreateQueue(QueueClient);

@@ -35,17 +35,19 @@ namespace FaceZoomBot.Workers
                 using (var shapePredictor = ShapePredictor.Deserialize(Config.General.ShapePredictorPath))
                 using (var image = Storage.LoadImage(Job.ImagePath))
                 {
-                    var convertedImage = ImageToArray2D(image);
-                    var detections = detector.Operator(convertedImage);
-                    facesFound = detections.Length;
-                    for (int i = 0; i < facesFound; i++)
+                    using (var convertedImage = ImageToArray2D(image))
                     {
-                        using (var shape = shapePredictor.Detect(convertedImage, detections[i]))
-                        using (var faceChipDetail = Dlib.GetFaceChipDetails(shape, 700))
-                        using (var faceChip = Dlib.ExtractImageChip<RgbPixel>(convertedImage, faceChipDetail))
+                        var detections = detector.Operator(convertedImage);
+                        facesFound = detections.Length;
+                        for (int i = 0; i < facesFound; i++)
                         {
-                            var face = Array2DToImage(faceChip);
-                            Storage.SaveFace(face, Job.ImagePath);
+                            using (var shape = shapePredictor.Detect(convertedImage, detections[i]))
+                            using (var faceChipDetail = Dlib.GetFaceChipDetails(shape, 700))
+                            using (var faceChip = Dlib.ExtractImageChip<RgbPixel>(convertedImage, faceChipDetail))
+                            {
+                                var face = Array2DToImage(faceChip);
+                                Storage.SaveFace(face, Job.ImagePath);
+                            }
                         }
                     }
                 }

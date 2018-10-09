@@ -108,14 +108,16 @@ namespace FaceZoomBot.DataStorage
 
         public string GetRandomIdentifier()
         {
-            var algorithm = SHA384.Create();
-            var randomBytes = new byte[1024];
-            var random = new Random();
-            random.NextBytes(randomBytes);
-            var hash = algorithm.ComputeHash(randomBytes);
-            return BitConverter.ToString(hash)
-                .Replace("-", "")
-                .ToLower();
+            using (var algorithm = SHA384.Create())
+            {
+                var randomBytes = new byte[1024];
+                var random = new Random();
+                random.NextBytes(randomBytes);
+                var hash = algorithm.ComputeHash(randomBytes);
+                return BitConverter.ToString(hash)
+                    .Replace("-", "")
+                    .ToLower();
+            }
         }
     }
 }

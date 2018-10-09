@@ -34,7 +34,7 @@ namespace FaceZoomBot.Workers
                 using (var detector = Dlib.GetFrontalFaceDetector())
                 using (var shapePredictor = ShapePredictor.Deserialize(Config.General.ShapePredictorPath))
                 using (var image = Storage.LoadImage(Job.ImagePath))
-                using(var convertedImage = ImageToMatrix(image))
+                using (var convertedImage = ImageToMatrix(image))
                 {
                     var detections = detector.Operator(convertedImage);
                     facesFound = detections.Length;
@@ -43,14 +43,13 @@ namespace FaceZoomBot.Workers
                         using (var shape = shapePredictor.Detect(convertedImage, detections[i]))
                         using (var faceChipDetail = Dlib.GetFaceChipDetails(shape, 700))
                         using (var faceChip = Dlib.ExtractImageChip<RgbPixel>(convertedImage, faceChipDetail))
+                        using (var face = MatrixToImage(faceChip))
                         {
-                            using (var face = MatrixToImage(faceChip))
-                            {
-                                Storage.SaveFace(face, Job.ImagePath);
-                            }
+                            Storage.SaveFace(face, Job.ImagePath);
                         }
                     }
                 }
+                
                 if (facesFound < 1)
                 {
                     if (Job.TelegramChat.IsPrivate)

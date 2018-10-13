@@ -25,7 +25,7 @@ namespace FaceZoomBot
 
         public IStorage CreateStorage()
         {
-            return new FileSystemStorage();
+            return new MongoDBStorage();
         }
 
         public TelegramClient CreateTelegramClient()

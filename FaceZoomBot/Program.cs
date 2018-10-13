@@ -1,12 +1,15 @@
 ﻿using System;
+using FaceZoomBot.DataStorage;
 using FaceZoomBot.Telegram;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace FaceZoomBot
 {
     class Program
     {
         static void Main(string[] args)
-        {
+        { 
             Console.WriteLine("FaceZoomBot ALPHA - by p4ddy");
             if (args.Length < 1)
             {

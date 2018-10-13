@@ -32,7 +32,7 @@ namespace FaceZoomBot.DataStorage
             CreateDirectory(FacesBasePath);
             
             Encoder = new JpegEncoder();
-            Decoder = new JpegDecoder();;
+            Decoder = new JpegDecoder();
         }
         
         public void SaveImage(Image<Rgb24> image, string imageIdentifier)

@@ -1,3 +1,4 @@
+using System;
 using FaceZoomBot.Configuration;
 using Telegram.Bot;
 

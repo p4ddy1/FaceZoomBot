@@ -19,9 +19,20 @@ namespace FaceZoomBot.DataStorage
         
         public MongoDBStorage()
         {
+            var factory = new Factory();
+            var config = factory.LoadConfig();
+            
             RegisterClassMaps();
-            MongoClient = new MongoClient("mongodb://devel:devel@127.0.0.1");
-            Database = MongoClient.GetDatabase("faceZoomBot");
+
+            var clientSettings = new MongoClientSettings
+            {
+                Server = new MongoServerAddress(config.MongoDB.Host, config.MongoDB.Port),
+                Credential = MongoCredential.CreateCredential(config.MongoDB.Database, config.MongoDB.User,
+                    config.MongoDB.Password)
+            };
+            
+            MongoClient = new MongoClient(clientSettings);
+            Database = MongoClient.GetDatabase(config.MongoDB.Database);
             ImageCollection = Database.GetCollection<TelegramImage>("image");
             FaceCollection = Database.GetCollection<Face>("face");
         }

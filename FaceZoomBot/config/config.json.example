@@ -1,15 +1,23 @@
 {
   "General": {
     "ShapePredictorPath": "shape_predictor_5_face_landmarks.dat",
-    "DataDirectoryPath": "var/data"
+    "DataDirectoryPath": "var/data",
+    "StorageType": "MongoDB"
   },
   "Telegram": {
     "ApiKey": ""
   },
   "RabbitMq": {
-    "Ip": "127.0.0.1",
+    "Host": "127.0.0.1",
     "Port": 5672,
-    "User": "",
-    "Password": ""
+    "User": "guest",
+    "Password": "guest"
+  },
+  "MongoDB": {
+    "Host": "127.0.0.1",
+    "Port": 27017,
+    "User": "devel",
+    "Password": "devel",
+    "Database": "faceZoomBot"
   }
 }

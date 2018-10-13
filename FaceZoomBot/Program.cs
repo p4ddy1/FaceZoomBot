@@ -1,8 +1,5 @@
 ﻿using System;
-using FaceZoomBot.DataStorage;
 using FaceZoomBot.Telegram;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace FaceZoomBot
 {

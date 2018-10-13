@@ -1,3 +1,4 @@
+using System;
 using FaceZoomBot.Configuration;
 using FaceZoomBot.DataStorage;
 using FaceZoomBot.MessageQueue;
@@ -25,7 +26,15 @@ namespace FaceZoomBot
 
         public IStorage CreateStorage()
         {
-            return new MongoDBStorage();
+            var config = LoadConfig();
+            switch (config.General.StorageType)
+            {
+                case StorageType.FileSystem:
+                    return new FileSystemStorage();
+                case StorageType.MongoDB:
+                    return new MongoDBStorage();
+            }
+            throw new Exception("Wrong storage type set");
         }
 
         public TelegramClient CreateTelegramClient()

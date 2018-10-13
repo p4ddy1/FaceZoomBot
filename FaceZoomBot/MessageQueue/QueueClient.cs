@@ -26,10 +26,10 @@ namespace FaceZoomBot.MessageQueue
 
             ConnectionFactory = new ConnectionFactory
             {
-                HostName = Config.RabbitMq.Ip,
-                Port = Config.RabbitMq.Port,
-                UserName = Config.RabbitMq.User,
-                Password = Config.RabbitMq.Password
+                HostName = Config.RabbitMQ.Host,
+                Port = Config.RabbitMQ.Port,
+                UserName = Config.RabbitMQ.User,
+                Password = Config.RabbitMQ.Password
             };
 
             Connection = ConnectionFactory.CreateConnection();

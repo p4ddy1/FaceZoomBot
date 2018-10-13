@@ -7,13 +7,14 @@ namespace FaceZoomBot.Configuration
     {
         public General General { get; set; }
         public Telegram Telegram { get; set; }
-        public RabbitMQ RabbitMq { get; set; }
+        public RabbitMQ RabbitMQ { get; set; }
+        public MongoDB MongoDB { get; set; }
 
-        public Config(Telegram telegram, RabbitMQ rabbitMq, General general)
+        public Config(Telegram telegram, RabbitMQ rabbitMQ, General general)
         {
             General = general;
             Telegram = telegram;
-            RabbitMq = rabbitMq;
+            RabbitMQ = rabbitMQ;
         }
 
         public void Save(string path)

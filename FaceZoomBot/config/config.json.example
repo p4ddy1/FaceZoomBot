@@ -18,6 +18,7 @@
     "Port": 27017,
     "User": "devel",
     "Password": "devel",
+    "AuthDatabase": "admin",
     "Database": "faceZoomBot"
   }
 }

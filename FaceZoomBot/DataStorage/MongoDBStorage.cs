@@ -27,7 +27,7 @@ namespace FaceZoomBot.DataStorage
             var clientSettings = new MongoClientSettings
             {
                 Server = new MongoServerAddress(config.MongoDB.Host, config.MongoDB.Port),
-                Credential = MongoCredential.CreateCredential(config.MongoDB.Database, config.MongoDB.User,
+                Credential = MongoCredential.CreateCredential(config.MongoDB.AuthDatabase, config.MongoDB.User,
                     config.MongoDB.Password)
             };
             
@@ -35,6 +35,14 @@ namespace FaceZoomBot.DataStorage
             Database = MongoClient.GetDatabase(config.MongoDB.Database);
             ImageCollection = Database.GetCollection<TelegramImage>("image");
             FaceCollection = Database.GetCollection<Face>("face");
+            AddIndices();
+        }
+
+        private void AddIndices()
+        {
+            var faceBuilder = Builders<Face>.IndexKeys;
+            var indexModel = new CreateIndexModel<Face>(faceBuilder.Text(face => face.ImageId));
+            FaceCollection.Indexes.CreateOne(indexModel);
         }
 
         private void RegisterClassMaps()
@@ -86,20 +94,17 @@ namespace FaceZoomBot.DataStorage
 
         public void DeleteImage(string imageIdentifier)
         {
-            //TODO: Implement deletion
-            return;
+            ImageCollection.DeleteOne(new BsonDocument("_id", new ObjectId(imageIdentifier)));
         }
 
         public void DeleteFace(string imageIdentifier, string faceIdentifier)
         {
-            //TODO: Implement deletion
-            return;
+            FaceCollection.DeleteOne(new BsonDocument("_id", new ObjectId(faceIdentifier)));
         }
 
         public void DeleteAllFacesForImage(string imageIdentifier)
         {
-            //TODO: Implement deletion
-            return;
+            FaceCollection.DeleteMany(new BsonDocument("ImageId", imageIdentifier));
         }
 
         public List<string> GetAllFaceIdentifiersForImage(string imageIdentifier)

@@ -27,7 +27,8 @@ namespace FaceZoomBot.Workers
 
                     var queue = Factory.CreateQueue(QueueClient);
                     var telegramChat = new TelegramChat(Job.TelegramChat.ChatId, true,
-                        @"Hey. I'm the FaceZoomBot. Send me your photos and I will zoom on all faces, if I can find any. Currently, I'm in an early alpha state, so expect a few bugs. If you have any questions about me ask my creator @Melun. Just send me a Photo to start. (Not as a file please)");
+                        @"Hey. I'm the FaceZoomBot. Send me your photos and I will zoom on all faces, if I can find any. 
+You can also add me to a group chat.");
                     var sendTextMessageJob = new SendTextMessageJob(telegramChat);
                     queue.AddJobToQueue(sendTextMessageJob);
                     return true;

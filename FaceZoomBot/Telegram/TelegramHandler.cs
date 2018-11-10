@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using FaceZoomBot.Jobs;
 using FaceZoomBot.MessageQueue;
@@ -31,16 +30,16 @@ namespace FaceZoomBot.Telegram
         private void OnMessageReceived(object sender, MessageEventArgs eventArgs)
         {
             var message = eventArgs.Message;
-            bool isPrivateChat = message.Chat.Type == ChatType.Private;
+            var isPrivateChat = message.Chat.Type == ChatType.Private;
 
-            if (message.Type == MessageType.Text && isPrivateChat)
+            switch (message.Type)
             {
-                HandleNewPrivateText(message.Chat.Id, message.Text);
-            }
-
-            if (message.Type == MessageType.Photo)
-            {
-                HandleNewImage(message.Chat.Id, isPrivateChat, message.Photo.LastOrDefault()?.FileId);
+                case MessageType.Text when isPrivateChat:
+                    HandleNewPrivateText(message.Chat.Id, message.Text);
+                    break;
+                case MessageType.Photo:
+                    HandleNewImage(message.Chat.Id, isPrivateChat, message.Photo.LastOrDefault()?.FileId);
+                    break;
             }
         }
 

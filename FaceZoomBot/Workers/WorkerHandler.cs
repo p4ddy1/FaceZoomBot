@@ -27,7 +27,7 @@ namespace FaceZoomBot.Workers
    
             Console.WriteLine("Job " + job.GetType() + " failed... moving back to queue...");
             
-            if (redelivered == false)
+            if (!redelivered)
             {
                 channel.BasicNack(deliveryTag, false, true);
                 return;

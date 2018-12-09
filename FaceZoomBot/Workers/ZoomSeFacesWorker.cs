@@ -13,22 +13,23 @@ namespace FaceZoomBot.Workers
     public class ZoomSeFacesWorker : Worker
     {
         private ZoomSeFacesJob Job { get; }
-        private IStorage Storage { get; }
-        private QueueClient QueueClient { get; }
-        private Config Config { get; }
+        private IStorage Storage { get; set; }
+        private QueueClient QueueClient { get; set; }
+        private Config Config { get; set; }
 
         public ZoomSeFacesWorker(ZoomSeFacesJob job) : base(job)
         {
             Job = job;
-            Storage = Factory.CreateStorage();
-            QueueClient = Factory.CreateQueueClient();
-            Config = Factory.LoadConfig();
         }
 
         public override bool DoWork()
         {
             try
             {
+                Storage = Factory.CreateStorage();
+                QueueClient = Factory.CreateQueueClient();
+                Config = Factory.LoadConfig();
+                
                 int facesFound;
             
                 using (var detector = Dlib.GetFrontalFaceDetector())

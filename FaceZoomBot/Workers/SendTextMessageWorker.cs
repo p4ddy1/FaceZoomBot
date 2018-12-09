@@ -7,19 +7,18 @@ namespace FaceZoomBot.Workers
     public class SendTextMessageWorker : Worker
     {
         private SendTextMessageJob Job { get; }
-        private TelegramClient TelegramClient { get; }
 
         public SendTextMessageWorker(SendTextMessageJob job) : base(job)
         {
-            Job = job;
-            TelegramClient = Factory.CreateTelegramClient();
+            Job = job;   
         }
 
         public override bool DoWork()
         {
             try
             {
-                TelegramClient.SendMessage(Job.TelegramChat.ChatId, Job.TelegramChat.Message);
+                var telegramClient = Factory.CreateTelegramClient();
+                telegramClient.SendMessage(Job.TelegramChat.ChatId, Job.TelegramChat.Message);
             }
             catch(Exception ex)
             {

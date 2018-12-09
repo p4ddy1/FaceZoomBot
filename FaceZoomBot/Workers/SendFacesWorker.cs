@@ -12,20 +12,20 @@ namespace FaceZoomBot.Workers
     public class SendFacesWorker : Worker
     {
         private SendFacesJob Job { get; }
-        private TelegramClient TelegramClient { get; }
-        private IStorage Storage { get; }
+        private TelegramClient TelegramClient { get; set; }
+        private IStorage Storage { get; set; }
 
         public SendFacesWorker(SendFacesJob job) : base(job)
         {
             Job = job;
-            TelegramClient = Factory.CreateTelegramClient();
-            Storage = Factory.CreateStorage();
         }
 
         public override bool DoWork()
         {
             try
             {
+                TelegramClient = Factory.CreateTelegramClient();
+                Storage = Factory.CreateStorage();
                 SendAllFacesForImage(Job.ImagePath).Wait();
             }
             catch (Exception ex)

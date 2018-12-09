@@ -14,22 +14,22 @@ namespace FaceZoomBot.Workers
     public class ImageReceivedWorker : Worker
     {
         private ImageReceivedJob Job { get; }
-        private TelegramClient TelegramClient { get; }
-        private IStorage Storage { get; }
-        private QueueClient QueueClient { get; }
+        private TelegramClient TelegramClient { get; set; }
+        private IStorage Storage { get; set; }
+        private QueueClient QueueClient { get; set; }
 
         public ImageReceivedWorker(ImageReceivedJob job) : base(job)
         {
             Job = job;
-            TelegramClient = Factory.CreateTelegramClient();
-            Storage = Factory.CreateStorage();
-            QueueClient = Factory.CreateQueueClient();
         }
 
         public override bool DoWork()
         {
             try
             {
+                TelegramClient = Factory.CreateTelegramClient();
+                Storage = Factory.CreateStorage();
+                QueueClient = Factory.CreateQueueClient();
                 DownloadImage().Wait();
             }
             catch (Exception ex)

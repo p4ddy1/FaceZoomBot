@@ -48,10 +48,14 @@ fun main(args: Array<String>) {
 
     transport.connect(connectionSettings)
 
-    val testCommand = TestCommand("foo")
     val testHandler = TestHandler()
 
     transport.subscribeHandler(TestCommand::class, testHandler)
-    transport.send(testCommand)
+
+    for (i in (0..100)) {
+        val testCommand = TestCommand("$i")
+        transport.send(testCommand)
+    }
+
     transport.startConsume()
 }

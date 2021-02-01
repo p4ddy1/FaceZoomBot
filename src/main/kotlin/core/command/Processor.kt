@@ -1,10 +1,13 @@
 package de.p4ddy.facezoombot.core.command
 
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import kotlin.reflect.KClass
 
-class SubscribedHandler(private val handlerFunction: (c: Command) -> Unit) {
-    fun handle(command: Command) {
+class SubscribedHandler(private val handlerFunction: suspend (c: Command) -> Unit) {
+    suspend fun handle(command: Command) {
         this.handlerFunction(command)
     }
 }
@@ -18,21 +21,23 @@ class Processor {
         this.commandToHandlerMap[command] = SubscribedHandler { cmd -> handler.handle(cmd as TCommand) }
     }
 
-    fun process(command: Command): Boolean {
+    fun process(command: Command, processingFinishedHandler: (successful: Boolean) -> Unit?) {
         val handler = this.commandToHandlerMap[command::class]
 
         if (handler == null) {
             logger.warn { "No handler registered for command ${command::class}" }
-            return false
+            processingFinishedHandler(false)
+            return
         }
 
-        try {
+        val exceptionHandler = CoroutineExceptionHandler {_, exception ->
+            logger.warn { "${command::class}: Message Handling failed: ${exception.message}" }
+            processingFinishedHandler(false)
+        }
+
+        GlobalScope.launch(exceptionHandler) {
             handler.handle(command)
-        } catch (e: Exception) {
-            logger.warn { "${command::class}: Message Handling failed: ${e.message}" }
-            return false;
+            processingFinishedHandler(true)
         }
-
-        return true;
     }
 }

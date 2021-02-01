@@ -115,19 +115,21 @@ class AmqpTransport (processor: Processor, private val commandSerializer: Comman
         val commandClass = this.queueToCommandMap[queueName] ?: throw NoCommandRegisteredException("Command not registered")
         val command = this.commandSerializer.deserialize(message.body, commandClass)
 
-        val successful = this.processor.process(command)
-
-        if (successful) {
-            this.channel?.basicAck(message.envelope.deliveryTag, false)
-        } else {
-            this.channel?.basicAck(message.envelope.deliveryTag, false)
-
-            if (command.retryCount >= command.maxRetryCount) {
-                this.deadLetterCommand(command, queueName)
+        val processingFinishedHandler = { successful: Boolean ->
+            if (successful) {
+                this.channel?.basicAck(message.envelope.deliveryTag, false)
             } else {
-                this.delayCommand(command, queueName)
+                this.channel?.basicAck(message.envelope.deliveryTag, false)
+
+                if (command.retryCount >= command.maxRetryCount - 1) {
+                    this.deadLetterCommand(command, queueName)
+                } else {
+                    this.delayCommand(command, queueName)
+                }
             }
         }
+
+        this.processor.process(command, processingFinishedHandler)
     }
 
     private fun onShutdown(consumerTag: String , sig: ShutdownSignalException) {

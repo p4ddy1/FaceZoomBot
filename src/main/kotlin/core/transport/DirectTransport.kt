@@ -12,7 +12,9 @@ class DirectTransport(processor: Processor) : TransportBase(processor) {
 
     override fun <TCommand: Command> send(command: TCommand) {
         //Directly process the command
-        this.processor.process(command)
+        val processingFinishedHandler = { _: Boolean ->
+        }
+        this.processor.process(command, processingFinishedHandler)
     }
 
     override fun startConsume() {

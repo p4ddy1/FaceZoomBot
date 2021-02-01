@@ -15,6 +15,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
     implementation("org.koin:koin-core:2.2.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.21")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.+")

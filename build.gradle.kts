@@ -18,6 +18,9 @@ dependencies {
     implementation("org.koin:koin-core:2.2.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.21")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.+")
+    implementation("org.slf4j:slf4j-api:1.7.5")
+    implementation("org.slf4j:slf4j-simple:1.7.5")
+    implementation("io.github.microutils:kotlin-logging:1.12.0")
     implementation("com.rabbitmq:amqp-client:5.10.0")
     testImplementation(kotlin("test-junit"))
 }

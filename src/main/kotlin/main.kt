@@ -31,6 +31,8 @@ val helloModule = module {
 }
 
 fun main(args: Array<String>) {
+    //System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
+
     /*startKoin {
         printLogger()
         modules(helloModule)

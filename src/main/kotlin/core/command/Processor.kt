@@ -1,5 +1,6 @@
 package de.p4ddy.facezoombot.core.command
 
+import mu.KotlinLogging
 import kotlin.reflect.KClass
 
 class SubscribedHandler(private val handlerFunction: (c: Command) -> Unit) {
@@ -8,6 +9,7 @@ class SubscribedHandler(private val handlerFunction: (c: Command) -> Unit) {
     }
 }
 
+private val logger = KotlinLogging.logger {}
 class Processor {
     private var commandToHandlerMap: MutableMap<KClass<out Command>, SubscribedHandler> = mutableMapOf()
 
@@ -16,10 +18,21 @@ class Processor {
         this.commandToHandlerMap[command] = SubscribedHandler { cmd -> handler.handle(cmd as TCommand) }
     }
 
-    fun process(command: Command) {
+    fun process(command: Command): Boolean {
         val handler = this.commandToHandlerMap[command::class]
 
-        //TODO: Handling for unmapped commands
-        handler?.handle(command)
+        if (handler == null) {
+            logger.warn { "No handler registered for command ${command::class}" }
+            return false
+        }
+
+        try {
+            handler.handle(command)
+        } catch (e: Exception) {
+            logger.warn { "${command::class}: Message Handling failed: ${e.message}" }
+            return false;
+        }
+
+        return true;
     }
 }

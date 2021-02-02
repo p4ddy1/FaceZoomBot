@@ -17,12 +17,16 @@ const val DELAY_QUEUE_PREFIX: String = "delay_"
 const val DEAD_LETTER_QUEUE_PREFIX: String = "dead_"
 
 private val logger = KotlinLogging.logger {}
-class AmqpTransport (processor: Processor, private val commandSerializer: CommandSerializer) : TransportBase(processor) {
+class AmqpTransport (
+    processor: Processor,
+    connectionSettings: ConnectionSettings,
+    private val commandSerializer: CommandSerializer
+) : TransportBase(processor) {
     private var channel: Channel? = null
     private var queueToCommandMap: MutableMap<String, KClass<out Command>> = mutableMapOf()
     private var declaredQueues: MutableList<String> = mutableListOf()
 
-    fun connect(connectionSettings: ConnectionSettings) {
+    init {
         val connectionFactory = ConnectionFactory()
         connectionFactory.host = connectionSettings.host
         connectionFactory.port = connectionSettings.port
@@ -54,7 +58,7 @@ class AmqpTransport (processor: Processor, private val commandSerializer: Comman
 
     override fun startConsume() {
         for (queue in this.queueToCommandMap) {
-            val queueName = queue.key;
+            val queueName = queue.key
 
             this.channel?.basicConsume(
                 queueName,
@@ -108,7 +112,7 @@ class AmqpTransport (processor: Processor, private val commandSerializer: Comman
     }
 
     private fun onMessageReceived(consumerTag: String, message: Delivery) {
-        val queueName = message.envelope.routingKey;
+        val queueName = message.envelope.routingKey
 
         logger.debug { "Received message on $queueName: ${message.body.toString(Charset.defaultCharset())}" }
 

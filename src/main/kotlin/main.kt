@@ -1,61 +1,81 @@
 package de.p4ddy.facezoombot
 
+import com.xenomachina.argparser.ArgParser
 import de.p4ddy.facezoombot.core.command.Processor
+import de.p4ddy.facezoombot.core.transport.TransportBase
 import de.p4ddy.facezoombot.core.transport.amqp.AmqpTransport
 import de.p4ddy.facezoombot.core.transport.amqp.ConnectionSettings
+import de.p4ddy.facezoombot.core.transport.serialization.CommandSerializer
 import de.p4ddy.facezoombot.core.transport.serialization.JsonCommandSerializer
 import de.p4ddy.facezoombot.test.TestCommand
 import de.p4ddy.facezoombot.test.TestHandler
+import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import org.opencv.core.Core
 
-data class HelloMessageData(val message: String = "Hello Kotlin")
+class CmdArguments(parser: ArgParser) {
+    val consume by parser.flagging(
+        "-c", "--consume", help = "Consumes and handles commands from the transport"
+    )
 
-interface HelloService {
-    fun hello(): String
+    val telegram by parser.flagging(
+        "-t", "--telegram", help = "Listen to events from the Telegram API"
+    )
+
+    val verbose by parser.flagging(
+        "-v", "--verbose", help = "Verbose logging"
+    )
 }
 
-class HelloServiceImpl(private val helloMessageData: HelloMessageData): HelloService {
-    override fun hello() = "Hey, ${helloMessageData.message}"
-}
+@KoinApiExtension
+class FaceZoomBotApplication : KoinComponent {
+    val transport by inject<TransportBase>()
 
-class HelloApplication : KoinComponent {
-    val helloService by inject<HelloService>()
-    fun sayHello() = println(helloService.hello())
-}
+    private val testHandler by inject<TestHandler>()
 
-val helloModule = module {
-    single { HelloMessageData() }
-    single { HelloServiceImpl(get()) as HelloService }
-}
-
-fun main(args: Array<String>) {
-    //System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE");
-
-    /*startKoin {
-        printLogger()
-        modules(helloModule)
-
-        HelloApplication().sayHello()
-    }*/
-
-    val processor = Processor()
-    val serializer = JsonCommandSerializer()
-    val transport = AmqpTransport(processor, serializer)
-
-    val connectionSettings = ConnectionSettings()
-
-    transport.connect(connectionSettings)
-
-    val testHandler = TestHandler()
-
-    transport.subscribeHandler(TestCommand::class, testHandler)
-
-    for (i in (0..100)) {
-        val testCommand = TestCommand("$i")
-        transport.send(testCommand)
+    private fun registerCommandHandler() {
+        transport.subscribeHandler(TestCommand::class, testHandler)
     }
 
-    transport.startConsume()
+    fun startAsConsumer() {
+        println("Starting as consumer...")
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
+        this.registerCommandHandler()
+        transport.startConsume()
+    }
+}
+
+val faceZoomBotModule = module {
+    single { ConnectionSettings() }
+    single { JsonCommandSerializer() as CommandSerializer }
+    single { Processor() }
+    single { AmqpTransport(get(), get(), get()) as TransportBase }
+}
+
+val handlerModule = module {
+    single { TestHandler() }
+}
+
+@KoinApiExtension
+fun main(args: Array<String>) {
+    val cmdArguments = ArgParser(args).parseInto(::CmdArguments)
+
+    if (cmdArguments.verbose) {
+        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "TRACE")
+    }
+
+    startKoin {
+        printLogger()
+        modules(handlerModule)
+        modules(faceZoomBotModule)
+
+        if (cmdArguments.consume) {
+            FaceZoomBotApplication().startAsConsumer()
+        }
+    }
+
+    println("Please start the application either as consumer or as Telegram event listener. See --help for more info")
 }

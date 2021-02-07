@@ -1,8 +1,9 @@
 package de.p4ddy.facezoombot
 
 import com.xenomachina.argparser.ArgParser
+import de.p4ddy.facezoombot.config.Config
+import de.p4ddy.facezoombot.config.RabbitMqSpec
 import de.p4ddy.facezoombot.core.command.Processor
-import de.p4ddy.facezoombot.core.transport.TransportBase
 import de.p4ddy.facezoombot.core.transport.amqp.AmqpTransport
 import de.p4ddy.facezoombot.core.transport.amqp.ConnectionSettings
 import de.p4ddy.facezoombot.core.transport.serialization.CommandSerializer
@@ -13,16 +14,21 @@ import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.startKoin
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 import org.opencv.core.Core
 
 class CmdArguments(parser: ArgParser) {
+    val config by parser.storing(
+        "-c", "--config", help = "Config file path"
+    )
+
     val consume by parser.flagging(
-        "-c", "--consume", help = "Consumes and handles commands from the transport"
+        "-C", "--consume", help = "Consumes and handles commands from the transport"
     )
 
     val telegram by parser.flagging(
-        "-t", "--telegram", help = "Listen to events from the Telegram API"
+        "-T", "--telegram", help = "Listen to events from the Telegram API"
     )
 
     val verbose by parser.flagging(
@@ -31,8 +37,15 @@ class CmdArguments(parser: ArgParser) {
 }
 
 @KoinApiExtension
-class FaceZoomBotApplication : KoinComponent {
-    val transport by inject<TransportBase>()
+class FaceZoomBotApplication(cmdArguments: CmdArguments) : KoinComponent {
+    private val config = Config(cmdArguments.config)
+    private val connectionSettings = ConnectionSettings(
+        config.config[RabbitMqSpec.host],
+        config.config[RabbitMqSpec.port],
+        config.config[RabbitMqSpec.username],
+        config.config[RabbitMqSpec.password],
+    )
+    val transport: AmqpTransport by inject { parametersOf(connectionSettings)}
 
     private val testHandler by inject<TestHandler>()
 
@@ -49,10 +62,9 @@ class FaceZoomBotApplication : KoinComponent {
 }
 
 val faceZoomBotModule = module {
-    single { ConnectionSettings() }
     single { JsonCommandSerializer() as CommandSerializer }
     single { Processor() }
-    single { AmqpTransport(get(), get(), get()) as TransportBase }
+    single { (connectionSettings: ConnectionSettings) -> AmqpTransport(get(), connectionSettings, get())}
 }
 
 val handlerModule = module {
@@ -73,7 +85,7 @@ fun main(args: Array<String>) {
         modules(faceZoomBotModule)
 
         if (cmdArguments.consume) {
-            FaceZoomBotApplication().startAsConsumer()
+            FaceZoomBotApplication(cmdArguments).startAsConsumer()
         }
     }
 

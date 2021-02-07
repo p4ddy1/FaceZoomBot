@@ -15,6 +15,7 @@ repositories {
 }
 
 dependencies {
+    implementation("com.uchuhimo:konf:1.0.0")
     implementation("org.bytedeco:javacv-platform:1.5.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
     implementation("org.koin:koin-core:2.2.2")

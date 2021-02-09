@@ -4,12 +4,18 @@ import com.xenomachina.argparser.ArgParser
 import de.p4ddy.facezoombot.config.Config
 import de.p4ddy.facezoombot.config.RabbitMqSpec
 import de.p4ddy.facezoombot.core.command.Processor
+import de.p4ddy.facezoombot.core.transport.TransportBase
 import de.p4ddy.facezoombot.core.transport.amqp.AmqpTransport
 import de.p4ddy.facezoombot.core.transport.amqp.ConnectionSettings
 import de.p4ddy.facezoombot.core.transport.serialization.CommandSerializer
 import de.p4ddy.facezoombot.core.transport.serialization.JsonCommandSerializer
-import de.p4ddy.facezoombot.test.TestCommand
-import de.p4ddy.facezoombot.test.TestHandler
+import de.p4ddy.facezoombot.telegram.api.TelegramApiListener
+import de.p4ddy.facezoombot.telegram.api.TelegramBotApi
+import de.p4ddy.facezoombot.telegram.api.TelegramBotSettings
+import de.p4ddy.facezoombot.telegram.message.ReceiveMessageCommand
+import de.p4ddy.facezoombot.telegram.message.ReceiveMessageHandler
+import de.p4ddy.facezoombot.telegram.picture.ReceivePhotosCommand
+import de.p4ddy.facezoombot.telegram.picture.ReceivePhotosHandler
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -37,20 +43,17 @@ class CmdArguments(parser: ArgParser) {
 }
 
 @KoinApiExtension
-class FaceZoomBotApplication(cmdArguments: CmdArguments) : KoinComponent {
-    private val config = Config(cmdArguments.config)
-    private val connectionSettings = ConnectionSettings(
-        config.config[RabbitMqSpec.host],
-        config.config[RabbitMqSpec.port],
-        config.config[RabbitMqSpec.username],
-        config.config[RabbitMqSpec.password],
-    )
-    val transport: AmqpTransport by inject { parametersOf(connectionSettings)}
+class FaceZoomBotApplication() : KoinComponent {
+    val transport by inject<TransportBase>()
 
-    private val testHandler by inject<TestHandler>()
+    val telegramApiListener by inject<TelegramApiListener>()
+
+    private val receiveMessageHandler by inject<ReceiveMessageHandler>()
+    private val receivePhotosHandler by inject<ReceivePhotosHandler>()
 
     private fun registerCommandHandler() {
-        transport.subscribeHandler(TestCommand::class, testHandler)
+        transport.subscribeHandler(ReceiveMessageCommand::class, receiveMessageHandler)
+        transport.subscribeHandler(ReceivePhotosCommand::class, receivePhotosHandler)
     }
 
     fun startAsConsumer() {
@@ -59,16 +62,28 @@ class FaceZoomBotApplication(cmdArguments: CmdArguments) : KoinComponent {
         this.registerCommandHandler()
         transport.startConsume()
     }
+
+    fun startAsTelegramHandler() {
+        println("Starting as telegram handler...")
+        this.registerCommandHandler()
+        telegramApiListener.startListening()
+    }
 }
 
 val faceZoomBotModule = module {
+    single { Config(getProperty("configPath")) }
     single { JsonCommandSerializer() as CommandSerializer }
     single { Processor() }
-    single { (connectionSettings: ConnectionSettings) -> AmqpTransport(get(), connectionSettings, get())}
+    single { ConnectionSettings(get()) }
+    single { AmqpTransport(get(), get(), get()) as TransportBase}
+    single { TelegramBotSettings(get()) }
+    single { TelegramBotApi(get(), get()) }
+    single { TelegramApiListener(get()) }
 }
 
 val handlerModule = module {
-    single { TestHandler() }
+    single { ReceiveMessageHandler() }
+    single { ReceivePhotosHandler(get()) }
 }
 
 @KoinApiExtension
@@ -81,13 +96,16 @@ fun main(args: Array<String>) {
 
     startKoin {
         printLogger()
+        properties(mapOf("configPath" to cmdArguments.config))
         modules(handlerModule)
         modules(faceZoomBotModule)
 
         if (cmdArguments.consume) {
-            FaceZoomBotApplication(cmdArguments).startAsConsumer()
+            FaceZoomBotApplication().startAsConsumer()
+        } else if (cmdArguments.telegram) {
+            FaceZoomBotApplication().startAsTelegramHandler()
+        } else {
+            println("Please start the application either as consumer or as Telegram event listener. See --help for more info")
         }
     }
-
-    println("Please start the application either as consumer or as Telegram event listener. See --help for more info")
 }

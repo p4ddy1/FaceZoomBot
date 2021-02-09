@@ -10,6 +10,7 @@ group = "de.p4ddy"
 version = "1.0-SNAPSHOT"
 
 repositories {
+    maven("https://jitpack.io")
     mavenCentral()
     jcenter()
 }
@@ -26,6 +27,7 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging:1.12.0")
     implementation("com.rabbitmq:amqp-client:5.10.0")
     implementation("com.xenomachina:kotlin-argparser:2.0.7")
+    implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:dispatcher:6.0.2")
     testImplementation(kotlin("test-junit"))
 }
 

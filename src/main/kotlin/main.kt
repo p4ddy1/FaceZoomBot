@@ -1,9 +1,9 @@
 package de.p4ddy.facezoombot
 
 import com.xenomachina.argparser.ArgParser
-import de.p4ddy.facezoombot.config.Config
-import de.p4ddy.facezoombot.config.RabbitMqSpec
+import de.p4ddy.facezoombot.config.ConfigProvider
 import de.p4ddy.facezoombot.core.command.Processor
+import de.p4ddy.facezoombot.core.database.mongodb.MongoDbClientProvider
 import de.p4ddy.facezoombot.core.transport.TransportBase
 import de.p4ddy.facezoombot.core.transport.amqp.AmqpTransport
 import de.p4ddy.facezoombot.core.transport.amqp.ConnectionSettings
@@ -16,11 +16,12 @@ import de.p4ddy.facezoombot.telegram.message.ReceiveMessageCommand
 import de.p4ddy.facezoombot.telegram.message.ReceiveMessageHandler
 import de.p4ddy.facezoombot.telegram.picture.ReceivePhotosCommand
 import de.p4ddy.facezoombot.telegram.picture.ReceivePhotosHandler
+import de.p4ddy.facezoombot.telegram.picture.repository.PictureMongoDbRepository
+import de.p4ddy.facezoombot.telegram.picture.repository.PictureRepository
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.startKoin
-import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 import org.opencv.core.Core
 
@@ -71,7 +72,7 @@ class FaceZoomBotApplication() : KoinComponent {
 }
 
 val faceZoomBotModule = module {
-    single { Config(getProperty("configPath")) }
+    single { ConfigProvider(getProperty("configPath")) }
     single { JsonCommandSerializer() as CommandSerializer }
     single { Processor() }
     single { ConnectionSettings(get()) }
@@ -79,11 +80,13 @@ val faceZoomBotModule = module {
     single { TelegramBotSettings(get()) }
     single { TelegramBotApi(get(), get()) }
     single { TelegramApiListener(get()) }
+    single { MongoDbClientProvider(get()) }
+    single { PictureMongoDbRepository(get()) as PictureRepository}
 }
 
 val handlerModule = module {
-    single { ReceiveMessageHandler() }
-    single { ReceivePhotosHandler(get()) }
+    single { ReceiveMessageHandler(get()) }
+    single { ReceivePhotosHandler(get(), get()) }
 }
 
 @KoinApiExtension

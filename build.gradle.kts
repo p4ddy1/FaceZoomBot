@@ -28,6 +28,8 @@ dependencies {
     implementation("com.rabbitmq:amqp-client:5.10.0")
     implementation("com.xenomachina:kotlin-argparser:2.0.7")
     implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:dispatcher:6.0.2")
+    implementation("org.litote.kmongo:kmongo-async:4.2.4")
+    implementation("org.litote.kmongo:kmongo-coroutine:4.2.4")
     testImplementation(kotlin("test-junit"))
 }
 

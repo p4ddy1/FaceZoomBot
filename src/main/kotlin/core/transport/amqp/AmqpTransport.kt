@@ -75,6 +75,12 @@ class AmqpTransport (
         this.publishCommand(command, deadLetterQueueName)
     }
 
+    private fun deadLetterRawMessage(message: Delivery) {
+        val deadLetterQueueName = "$DEAD_LETTER_QUEUE_PREFIX${message.envelope.routingKey}"
+        this.declareQueue(deadLetterQueueName)
+        this.channel?.basicPublish("", deadLetterQueueName, null, message.body)
+    }
+
     private fun delayCommand(command: Command, queueName: String) {
         command.retryCount++
         this.declareDelayQueue(queueName)
@@ -117,23 +123,29 @@ class AmqpTransport (
         logger.debug { "Received message on $queueName: ${message.body.toString(Charset.defaultCharset())}" }
 
         val commandClass = this.queueToCommandMap[queueName] ?: throw NoCommandRegisteredException("Command not registered")
-        val command = this.commandSerializer.deserialize(message.body, commandClass)
+        try {
+            val command = this.commandSerializer.deserialize(message.body, commandClass)
 
-        val processingFinishedHandler = { successful: Boolean ->
-            if (successful) {
-                this.channel?.basicAck(message.envelope.deliveryTag, false)
-            } else {
-                this.channel?.basicAck(message.envelope.deliveryTag, false)
-
-                if (command.retryCount >= command.maxRetryCount - 1) {
-                    this.deadLetterCommand(command, queueName)
+            val processingFinishedHandler = { successful: Boolean ->
+                if (successful) {
+                    this.channel?.basicAck(message.envelope.deliveryTag, false)
                 } else {
-                    this.delayCommand(command, queueName)
+                    this.channel?.basicAck(message.envelope.deliveryTag, false)
+
+                    if (command.retryCount >= command.maxRetryCount - 1) {
+                        this.deadLetterCommand(command, queueName)
+                    } else {
+                        this.delayCommand(command, queueName)
+                    }
                 }
             }
-        }
 
-        this.processor.process(command, processingFinishedHandler)
+            this.processor.process(command, processingFinishedHandler)
+        } catch (e: Exception) {
+            logger.error { "Error while handling message: ${e.message}" }
+            this.channel?.basicAck(message.envelope.deliveryTag, false)
+            this.deadLetterRawMessage(message)
+        }
     }
 
     private fun onShutdown(consumerTag: String , sig: ShutdownSignalException) {

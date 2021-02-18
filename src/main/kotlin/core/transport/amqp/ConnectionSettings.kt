@@ -1,11 +1,11 @@
 package de.p4ddy.facezoombot.core.transport.amqp
 
-import de.p4ddy.facezoombot.config.Config
+import de.p4ddy.facezoombot.config.ConfigProvider
 import de.p4ddy.facezoombot.config.RabbitMqSpec
 
-class ConnectionSettings(config: Config) {
-    val host = config.config[RabbitMqSpec.host]
-    val port = config.config[RabbitMqSpec.port]
-    val username = config.config[RabbitMqSpec.username]
-    val password = config.config[RabbitMqSpec.password]
+class ConnectionSettings(configProvider: ConfigProvider) {
+    val host = configProvider.config[RabbitMqSpec.host]
+    val port = configProvider.config[RabbitMqSpec.port]
+    val username = configProvider.config[RabbitMqSpec.username]
+    val password = configProvider.config[RabbitMqSpec.password]
 }

@@ -38,14 +38,19 @@ class TelegramBotApi(botSettings: TelegramBotSettings, transport: TransportBase)
             photos {
                 val photos = update.message?.photo
                 val user = update.message?.from
+                val chatId = update.message?.chat?.id;
 
-                if (photos == null || user == null) {
-                    logger.error { "No photos received" }
+                if (photos == null || user == null || chatId == null) {
+                    logger.error { "Could not handle photo update because data is missing" }
                     return@photos
                 }
 
                 val photoList = photos.map { Photo.fromTelegramPhoto(it) }
-                val command = ReceivePhotosCommand(User.fromTelegramUser(user), photoList)
+                val command = ReceivePhotosCommand(
+                    chatId,
+                    User.fromTelegramUser(user),
+                    photoList
+                )
                 transport.send(command)
             }
         }

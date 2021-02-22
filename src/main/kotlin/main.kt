@@ -9,6 +9,9 @@ import de.p4ddy.facezoombot.core.transport.amqp.AmqpTransport
 import de.p4ddy.facezoombot.core.transport.amqp.ConnectionSettings
 import de.p4ddy.facezoombot.core.transport.serialization.CommandSerializer
 import de.p4ddy.facezoombot.core.transport.serialization.JsonCommandSerializer
+import de.p4ddy.facezoombot.facezoom.*
+import de.p4ddy.facezoombot.facezoom.repository.FaceMongoDbRepository
+import de.p4ddy.facezoombot.facezoom.repository.FaceRepository
 import de.p4ddy.facezoombot.telegram.api.TelegramApiListener
 import de.p4ddy.facezoombot.telegram.api.TelegramBotApi
 import de.p4ddy.facezoombot.telegram.api.TelegramBotSettings
@@ -16,8 +19,8 @@ import de.p4ddy.facezoombot.telegram.message.ReceiveMessageCommand
 import de.p4ddy.facezoombot.telegram.message.ReceiveMessageHandler
 import de.p4ddy.facezoombot.telegram.picture.ReceivePhotosCommand
 import de.p4ddy.facezoombot.telegram.picture.ReceivePhotosHandler
-import de.p4ddy.facezoombot.telegram.picture.repository.PictureMongoDbRepository
-import de.p4ddy.facezoombot.telegram.picture.repository.PictureRepository
+import de.p4ddy.facezoombot.telegram.picture.repository.PhotoMongoDbRepository
+import de.p4ddy.facezoombot.telegram.picture.repository.PhotoRepository
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -51,15 +54,18 @@ class FaceZoomBotApplication() : KoinComponent {
 
     private val receiveMessageHandler by inject<ReceiveMessageHandler>()
     private val receivePhotosHandler by inject<ReceivePhotosHandler>()
+    private val zoomFacesHandler by inject<ZoomFacesHandler>()
+    private val sendFacesHandler by inject<SendFacesHandler>()
 
     private fun registerCommandHandler() {
         transport.subscribeHandler(ReceiveMessageCommand::class, receiveMessageHandler)
         transport.subscribeHandler(ReceivePhotosCommand::class, receivePhotosHandler)
+        transport.subscribeHandler(ZoomFacesCommand::class, zoomFacesHandler)
+        transport.subscribeHandler(SendFacesCommand::class, sendFacesHandler)
     }
 
     fun startAsConsumer() {
         println("Starting as consumer...")
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
         this.registerCommandHandler()
         transport.startConsume()
     }
@@ -81,16 +87,22 @@ val faceZoomBotModule = module {
     single { TelegramBotApi(get(), get()) }
     single { TelegramApiListener(get()) }
     single { MongoDbClientProvider(get()) }
-    single { PictureMongoDbRepository(get()) as PictureRepository}
+    single { PhotoMongoDbRepository(get()) as PhotoRepository}
+    single { FaceZoomer(get()) }
+    single { FaceMongoDbRepository(get()) as FaceRepository}
 }
 
 val handlerModule = module {
     single { ReceiveMessageHandler(get()) }
-    single { ReceivePhotosHandler(get(), get()) }
+    single { ReceivePhotosHandler(get(), get(), get()) }
+    single { ZoomFacesHandler(get(), get(), get(), get()) }
+    single { SendFacesHandler(get(), get(), get()) }
 }
 
 @KoinApiExtension
 fun main(args: Array<String>) {
+    System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
+
     val cmdArguments = ArgParser(args).parseInto(::CmdArguments)
 
     if (cmdArguments.verbose) {

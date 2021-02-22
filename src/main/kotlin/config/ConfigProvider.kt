@@ -8,6 +8,7 @@ class ConfigProvider(path: String = "config.toml") {
         addSpec(TelegramSpec)
         addSpec(RabbitMqSpec)
         addSpec(MongoDbSpec)
+        addSpec(OpenCVSpec)
     }
         .from.toml.file(path)
         .from.env()

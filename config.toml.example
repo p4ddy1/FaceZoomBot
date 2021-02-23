@@ -1,0 +1,15 @@
+[Telegram]
+apiToken=""
+
+[RabbitMQ]
+host="localhost"
+port=5672
+username="guest"
+password="guest"
+
+[MongoDB]
+connectionString="mongodb://devel:devel@localhost"
+database="FaceZoomBot"
+
+[OpenCV]
+faceCascadeClassifierPath="haarcascade_frontalface_alt.xml"

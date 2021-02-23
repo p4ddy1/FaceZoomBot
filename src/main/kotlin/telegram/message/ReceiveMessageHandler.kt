@@ -2,15 +2,27 @@ package de.p4ddy.facezoombot.telegram.message
 
 import de.p4ddy.facezoombot.core.command.Handler
 import de.p4ddy.facezoombot.core.database.mongodb.MongoDbClientProvider
+import de.p4ddy.facezoombot.telegram.api.TelegramBotApi
 
-data class Message(val text: String)
-
-class ReceiveMessageHandler(private val mongo: MongoDbClientProvider) : Handler<ReceiveMessageCommand> {
+class ReceiveMessageHandler(private val telegramClient: TelegramBotApi) : Handler<ReceiveMessageCommand> {
     override suspend fun handle(command: ReceiveMessageCommand) {
-        val db = mongo.client.getDatabase("FaceZoomBot")
-        val col = db.getCollection<Message>()
+        val helpMessage = "Hey. I'm the FaceZoomBot. Send me your photos and I will zoom on all faces, if I can find any. \n" +
+                "You can also add me to a group chat."
 
-        col.insertOne(Message(command.message))
-        println(command.message)
+        if (command.chatType == "private")
+        {
+            if (command.message == "/start" || command.message == "/help") {
+                telegramClient.bot.sendMessage(
+                    command.chatId,
+                    helpMessage
+                )
+                return
+            }
+
+            telegramClient.bot.sendMessage(
+                command.chatId,
+                "Type /help for more info"
+            )
+        }
     }
 }

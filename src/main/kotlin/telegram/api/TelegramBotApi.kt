@@ -20,8 +20,9 @@ class TelegramBotApi(botSettings: TelegramBotSettings, transport: TransportBase)
                 val text = update.message?.text
                 val user = update.message?.from
                 val chatId = update.message?.chat?.id
+                val chatType = update.message?.chat?.type
 
-                if (text == null || user == null || chatId == null) {
+                if (text == null || user == null || chatId == null || chatType == null) {
                     logger.error { "Could not handle message because text or user is null" }
                     return@text
                 }
@@ -29,7 +30,8 @@ class TelegramBotApi(botSettings: TelegramBotSettings, transport: TransportBase)
                 val command = ReceiveMessageCommand(
                     chatId,
                     text,
-                    User.fromTelegramUser(user)
+                    User.fromTelegramUser(user),
+                    chatType
                 )
 
                 transport.send(command)
@@ -39,8 +41,9 @@ class TelegramBotApi(botSettings: TelegramBotSettings, transport: TransportBase)
                 val photos = update.message?.photo
                 val user = update.message?.from
                 val chatId = update.message?.chat?.id
+                val chatType = update.message?.chat?.type
 
-                if (photos == null || user == null || chatId == null) {
+                if (photos == null || user == null || chatId == null || chatType == null) {
                     logger.error { "Could not handle photo update because data is missing" }
                     return@photos
                 }
@@ -49,7 +52,8 @@ class TelegramBotApi(botSettings: TelegramBotSettings, transport: TransportBase)
                 val command = ReceivePhotosCommand(
                     chatId,
                     User.fromTelegramUser(user),
-                    photoList
+                    photoList,
+                    chatType
                 )
                 transport.send(command)
             }

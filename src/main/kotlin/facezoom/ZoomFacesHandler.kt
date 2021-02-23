@@ -4,6 +4,7 @@ import de.p4ddy.facezoombot.core.command.Handler
 import de.p4ddy.facezoombot.core.transport.TransportBase
 import de.p4ddy.facezoombot.facezoom.entity.Face
 import de.p4ddy.facezoombot.facezoom.repository.FaceRepository
+import de.p4ddy.facezoombot.telegram.api.TelegramBotApi
 import de.p4ddy.facezoombot.telegram.picture.repository.PhotoRepository
 import mu.KotlinLogging
 
@@ -12,7 +13,8 @@ class ZoomFacesHandler(
     private val photoRepository: PhotoRepository,
     private val faceZoomer: FaceZoomer,
     private val faceRepository: FaceRepository,
-    private val transport: TransportBase
+    private val transport: TransportBase,
+    private val telegramBotApi: TelegramBotApi
     ) : Handler<ZoomFacesCommand> {
     override suspend fun handle(command: ZoomFacesCommand) {
         val picture = photoRepository.loadById(command.photoId)
@@ -31,8 +33,19 @@ class ZoomFacesHandler(
 
         logger.info { "Found $faceCount Faces in photo ${command.photoId} from chat ${command.chatId}" }
 
-        if (faceCount > 1) {
+        if (faceCount == 0) {
+            this.sendNoFaceFoundMessage(command)
+        } else {
             this.transport.send(SendFacesCommand(command.photoId, command.chatId, command.user))
+        }
+    }
+
+    private fun sendNoFaceFoundMessage(command: ZoomFacesCommand) {
+        if (command.chatType == "private") {
+            this.telegramBotApi.bot.sendMessage(
+                command.chatId,
+                "Sorry, I was not able to find any faces in your picture."
+            )
         }
     }
 }

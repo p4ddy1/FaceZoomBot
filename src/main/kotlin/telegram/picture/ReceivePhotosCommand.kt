@@ -7,5 +7,6 @@ import de.p4ddy.facezoombot.telegram.model.User
 class ReceivePhotosCommand(
     val chatId: Long,
     val user: User,
-    val photoList: List<Photo>
+    val photoList: List<Photo>,
+    val chatType: String
     ) : Command()

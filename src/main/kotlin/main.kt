@@ -95,7 +95,7 @@ val faceZoomBotModule = module {
 val handlerModule = module {
     single { ReceiveMessageHandler(get()) }
     single { ReceivePhotosHandler(get(), get(), get()) }
-    single { ZoomFacesHandler(get(), get(), get(), get()) }
+    single { ZoomFacesHandler(get(), get(), get(), get(), get()) }
     single { SendFacesHandler(get(), get(), get()) }
 }
 

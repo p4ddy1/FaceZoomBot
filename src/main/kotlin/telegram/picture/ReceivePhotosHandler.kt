@@ -17,7 +17,7 @@ class ReceivePhotosHandler(
     override suspend fun handle(command: ReceivePhotosCommand) {
         val picture = this.storePicture(command) ?: return
 
-        val zoomFacesCommand = ZoomFacesCommand(picture.key.toString(), command.chatId, command.user)
+        val zoomFacesCommand = ZoomFacesCommand(picture.key.toString(), command.chatId, command.user, command.chatType)
         transport.send(zoomFacesCommand)
     }
 

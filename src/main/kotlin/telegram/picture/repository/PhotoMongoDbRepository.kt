@@ -13,4 +13,8 @@ class PhotoMongoDbRepository(clientProvider: MongoDbClientProvider): AbstractMon
     override suspend fun loadById(id: String): Photo? {
         return this.getCollection<Photo>().findOneById(ObjectId(id))
     }
+
+    override suspend fun delete(id: String) {
+        this.getCollection<Photo>().deleteOneById(ObjectId(id))
+    }
 }

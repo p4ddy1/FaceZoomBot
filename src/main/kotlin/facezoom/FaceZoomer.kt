@@ -11,7 +11,7 @@ import org.opencv.imgproc.Imgproc
 import org.opencv.objdetect.CascadeClassifier
 import org.opencv.objdetect.Objdetect
 
-class FaceZoomer(val configProvider: ConfigProvider) {
+class FaceZoomer(configProvider: ConfigProvider) {
     private val faceCascade = CascadeClassifier()
 
     init {

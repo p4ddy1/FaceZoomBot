@@ -14,4 +14,8 @@ class FaceMongoDbRepository(clientProvider: MongoDbClientProvider): AbstractMong
         return this.getCollection<Face>().find(Face::photoId eq id).toList()
     }
 
+    override suspend fun deleteByPhotoId(id: String) {
+        this.getCollection<Face>().deleteMany(Face::photoId eq id)
+    }
+
 }

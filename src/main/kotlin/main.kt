@@ -47,10 +47,10 @@ class CmdArguments(parser: ArgParser) {
 }
 
 @KoinApiExtension
-class FaceZoomBotApplication() : KoinComponent {
+class FaceZoomBotApplication : KoinComponent {
     val transport by inject<TransportBase>()
 
-    val telegramApiListener by inject<TelegramApiListener>()
+    private val telegramApiListener by inject<TelegramApiListener>()
 
     private val receiveMessageHandler by inject<ReceiveMessageHandler>()
     private val receivePhotosHandler by inject<ReceivePhotosHandler>()
@@ -115,12 +115,16 @@ fun main(args: Array<String>) {
         modules(handlerModule)
         modules(faceZoomBotModule)
 
-        if (cmdArguments.consume) {
-            FaceZoomBotApplication().startAsConsumer()
-        } else if (cmdArguments.telegram) {
-            FaceZoomBotApplication().startAsTelegramHandler()
-        } else {
-            println("Please start the application either as consumer or as Telegram event listener. See --help for more info")
+        when {
+            cmdArguments.consume -> {
+                FaceZoomBotApplication().startAsConsumer()
+            }
+            cmdArguments.telegram -> {
+                FaceZoomBotApplication().startAsTelegramHandler()
+            }
+            else -> {
+                println("Please start the application either as consumer or as Telegram event listener. See --help for more info")
+            }
         }
     }
 }

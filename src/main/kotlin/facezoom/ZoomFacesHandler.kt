@@ -15,19 +15,24 @@ class ZoomFacesHandler(
     private val transport: TransportBase
     ) : Handler<ZoomFacesCommand> {
     override suspend fun handle(command: ZoomFacesCommand) {
-        val picture = photoRepository.loadById(command.photoId);
+        val picture = photoRepository.loadById(command.photoId)
         if (picture == null) {
             logger.error { "Could not load picture with id ${command.photoId} from database" }
             return
         }
 
         val faceList = faceZoomer.zoom(picture.data)
+        val faceCount = faceList.count()
 
         for (face in faceList) {
             val faceEntity = Face(photoId = command.photoId, data = face)
             faceRepository.persist(faceEntity)
         }
 
-        this.transport.send(SendFacesCommand(command.photoId, command.chatId, command.user))
+        logger.info { "Found $faceCount Faces in photo ${command.photoId} from chat ${command.chatId}" }
+
+        if (faceCount > 1) {
+            this.transport.send(SendFacesCommand(command.photoId, command.chatId, command.user))
+        }
     }
 }

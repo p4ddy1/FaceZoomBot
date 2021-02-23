@@ -30,7 +30,7 @@ class ReceivePhotosHandler(
             return null
         }
 
-        logger.info { "Photo ${photo.fileId} received! ChatId: ${user.id}. (${user.username}, ${user.firstName} ${user.lastName})" }
+        logger.info { "Photo ${photo.fileId} received! ChatId: ${command.chatId} User: ${user.id}. (${user.username}, ${user.firstName} ${user.lastName})" }
 
         val photoFile = telegramBotApi.bot.downloadFileBytes(photo.fileId)
         if (photoFile == null) {
@@ -38,7 +38,7 @@ class ReceivePhotosHandler(
             return null
         }
 
-        val picture = Photo(data = photoFile, chatId = user.id, fileId = photo.fileId)
+        val picture = Photo(data = photoFile, chatId = command.chatId, fileId = photo.fileId)
         this.photoRepository.persist(picture)
 
         return picture

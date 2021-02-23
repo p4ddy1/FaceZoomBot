@@ -25,7 +25,7 @@ class AmqpTransport (
     private var channel: Channel? = null
     private var queueToCommandMap: MutableMap<String, KClass<out Command>> = mutableMapOf()
     private var declaredQueues: MutableList<String> = mutableListOf()
-
+//TODO: Add QOS
     init {
         val connectionFactory = ConnectionFactory()
         connectionFactory.host = connectionSettings.host

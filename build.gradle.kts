@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.4.21"
     kotlin("plugin.serialization") version "1.4.21"
+    id("org.bytedeco.gradle-javacpp-platform") version "1.5.4"
     application
 }
 
@@ -17,7 +18,7 @@ repositories {
 
 dependencies {
     implementation("com.uchuhimo:konf:1.0.0")
-    implementation("org.bytedeco:javacv-platform:1.5.4")
+    implementation("org.bytedeco:opencv-platform:4.4.0-1.5.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
     implementation("org.koin:koin-core:2.2.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.21")

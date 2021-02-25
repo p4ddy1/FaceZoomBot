@@ -1,0 +1,28 @@
+stages:
+  - build
+  - package
+
+build_bot:
+  stage: build
+  script:
+    - ./gradlew build
+  artifacts:
+    paths:
+      - build/distributions/facezoombot.tar
+  tags:
+    - linux
+
+create_docker_image:
+  stage: package
+  script:
+    - cp build/distributions/facezoombot.tar docker/
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker build --cache-from alpine:3.13,registry.lpnw.de/p4ddy/facezoombot:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest docker/
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
+  only:
+    refs:
+      - master
+  tags:
+    - linux

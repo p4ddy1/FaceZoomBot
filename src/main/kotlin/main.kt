@@ -1,6 +1,7 @@
 package de.p4ddy.facezoombot
 
 import com.xenomachina.argparser.ArgParser
+import com.xenomachina.argparser.default
 import de.p4ddy.facezoombot.config.ConfigProvider
 import de.p4ddy.facezoombot.core.command.Processor
 import de.p4ddy.facezoombot.core.database.mongodb.MongoDbClientProvider
@@ -31,7 +32,7 @@ import org.opencv.core.Core
 class CmdArguments(parser: ArgParser) {
     val config by parser.storing(
         "-c", "--config", help = "Config file path"
-    )
+    ).default("")
 
     val consume by parser.flagging(
         "-C", "--consume", help = "Consumes and handles commands from the transport"

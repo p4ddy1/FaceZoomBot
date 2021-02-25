@@ -42,6 +42,9 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+tasks.getByName<Zip>("distZip").enabled = false
+tasks.getByName<Tar>("distTar").archiveName = "facezoombot.tar"
+
 application {
     mainClassName = "de.p4ddy.facezoombot.MainKt"
 }

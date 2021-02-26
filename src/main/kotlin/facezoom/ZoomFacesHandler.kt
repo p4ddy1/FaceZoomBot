@@ -35,6 +35,7 @@ class ZoomFacesHandler(
 
         if (faceCount == 0) {
             this.sendNoFaceFoundMessage(command)
+            this.photoRepository.delete(command.photoId)
         } else {
             this.transport.send(SendFacesCommand(command.photoId, command.chatId, command.user))
         }

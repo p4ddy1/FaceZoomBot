@@ -53,7 +53,8 @@ class TelegramBotApi(botSettings: TelegramBotSettings, transport: TransportBase)
                     chatId,
                     User.fromTelegramUser(user),
                     photoList,
-                    chatType
+                    chatType,
+                    update.message?.chat?.title
                 )
                 transport.send(command)
             }

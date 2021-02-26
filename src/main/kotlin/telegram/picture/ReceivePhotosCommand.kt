@@ -8,5 +8,6 @@ class ReceivePhotosCommand(
     val chatId: Long,
     val user: User,
     val photoList: List<Photo>,
-    val chatType: String
+    val chatType: String,
+    val chatTitle: String?
     ) : Command()

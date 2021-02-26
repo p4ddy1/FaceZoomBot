@@ -30,7 +30,7 @@ class ReceivePhotosHandler(
             return null
         }
 
-        logger.info { "Photo ${photo.fileId} received! ChatId: ${command.chatId} User: ${user.id}. (${user.username}, ${user.firstName} ${user.lastName})" }
+        logger.info { "Photo ${photo.fileId} received! ChatId: ${command.chatId} (${command.chatTitle}) User: ${user.id}. (${user.username}, ${user.firstName} ${user.lastName})" }
 
         val photoFile = telegramBotApi.bot.downloadFileBytes(photo.fileId)
         if (photoFile == null) {

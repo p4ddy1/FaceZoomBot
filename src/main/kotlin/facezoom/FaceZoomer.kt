@@ -11,21 +11,18 @@ import org.opencv.imgproc.Imgproc
 import org.opencv.objdetect.CascadeClassifier
 import org.opencv.objdetect.Objdetect
 
-class FaceZoomer(configProvider: ConfigProvider) {
-    private val faceCascade = CascadeClassifier()
-
-    init {
-        faceCascade.load(configProvider.config[OpenCVSpec.faceCascadeClassifierPath])
-    }
-
+class FaceZoomer(private val configProvider: ConfigProvider) {
     fun zoom(picture: ByteArray): List<ByteArray> {
+        val faceCascade = CascadeClassifier()
+        faceCascade.load(this.configProvider.config[OpenCVSpec.faceCascadeClassifierPath])
+
         val image = Imgcodecs.imdecode(MatOfByte(*picture), Imgcodecs.IMREAD_UNCHANGED)
         val grayFrame = Mat()
 
         val faces = MatOfRect()
 
         Imgproc.cvtColor(image, grayFrame, Imgproc.COLOR_BGR2GRAY)
-        this.faceCascade.detectMultiScale(grayFrame, faces, 1.1, 2, 0 or Objdetect.CASCADE_SCALE_IMAGE)
+        faceCascade.detectMultiScale(grayFrame, faces, 1.1, 2, 0 or Objdetect.CASCADE_SCALE_IMAGE)
 
         val faceList = mutableListOf<ByteArray>()
 

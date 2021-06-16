@@ -22,7 +22,7 @@ class FaceZoomer(private val configProvider: ConfigProvider) {
         val faces = MatOfRect()
 
         Imgproc.cvtColor(image, grayFrame, Imgproc.COLOR_BGR2GRAY)
-        faceCascade.detectMultiScale(grayFrame, faces, 1.5, 2, 0 or Objdetect.CASCADE_SCALE_IMAGE)
+        faceCascade.detectMultiScale(grayFrame, faces, 1.6, 2, 0 or Objdetect.CASCADE_SCALE_IMAGE)
 
         val faceList = mutableListOf<ByteArray>()
 

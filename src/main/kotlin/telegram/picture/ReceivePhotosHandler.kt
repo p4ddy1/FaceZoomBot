@@ -7,6 +7,7 @@ import de.p4ddy.facezoombot.telegram.api.TelegramBotApi
 import de.p4ddy.facezoombot.telegram.picture.entity.Photo
 import de.p4ddy.facezoombot.telegram.picture.repository.PhotoRepository
 import mu.KotlinLogging
+import java.util.*
 
 private val logger = KotlinLogging.logger {}
 class ReceivePhotosHandler(
@@ -38,7 +39,7 @@ class ReceivePhotosHandler(
             return null
         }
 
-        val picture = Photo(data = photoFile, chatId = command.chatId, fileId = photo.fileId)
+        val picture = Photo(data = photoFile, chatId = command.chatId, fileId = photo.fileId, createdAt = Date())
         this.photoRepository.persist(picture)
 
         return picture

@@ -7,6 +7,7 @@ import de.p4ddy.facezoombot.facezoom.repository.FaceRepository
 import de.p4ddy.facezoombot.telegram.api.TelegramBotApi
 import de.p4ddy.facezoombot.telegram.picture.repository.PhotoRepository
 import mu.KotlinLogging
+import java.util.*
 
 private val logger = KotlinLogging.logger {}
 class ZoomFacesHandler(
@@ -27,7 +28,7 @@ class ZoomFacesHandler(
         val faceCount = faceList.count()
 
         for (face in faceList) {
-            val faceEntity = Face(photoId = command.photoId, data = face)
+            val faceEntity = Face(photoId = command.photoId, data = face, createdAt = Date())
             faceRepository.persist(faceEntity)
         }
 

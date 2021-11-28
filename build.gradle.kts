@@ -25,7 +25,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.+")
     implementation("org.slf4j:slf4j-api:1.7.5")
     implementation("org.slf4j:slf4j-simple:1.7.5")
-    implementation("io.github.microutils:kotlin-logging:1.12.0")
+    implementation("io.github.microutils:kotlin-logging:1.12.5")
     implementation("com.rabbitmq:amqp-client:5.10.0")
     implementation("com.xenomachina:kotlin-argparser:2.0.7")
     implementation("io.github.kotlin-telegram-bot.kotlin-telegram-bot:dispatcher:6.0.2")

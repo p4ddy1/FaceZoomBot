@@ -1,5 +1,6 @@
 package de.p4ddy.facezoombot.facezoom
 
+import com.github.kotlintelegrambot.entities.ChatId
 import de.p4ddy.facezoombot.core.command.Handler
 import de.p4ddy.facezoombot.core.transport.TransportBase
 import de.p4ddy.facezoombot.facezoom.entity.Face
@@ -45,7 +46,7 @@ class ZoomFacesHandler(
     private fun sendNoFaceFoundMessage(command: ZoomFacesCommand) {
         if (command.chatType == "private") {
             this.telegramBotApi.bot.sendMessage(
-                command.chatId,
+                ChatId.fromId(command.chatId),
                 "Sorry, I was not able to find any faces in your picture."
             )
         }

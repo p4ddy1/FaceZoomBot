@@ -1,7 +1,7 @@
 package de.p4ddy.facezoombot.telegram.message
 
+import com.github.kotlintelegrambot.entities.ChatId
 import de.p4ddy.facezoombot.core.command.Handler
-import de.p4ddy.facezoombot.core.database.mongodb.MongoDbClientProvider
 import de.p4ddy.facezoombot.telegram.api.TelegramBotApi
 
 class ReceiveMessageHandler(private val telegramClient: TelegramBotApi) : Handler<ReceiveMessageCommand> {
@@ -13,14 +13,14 @@ class ReceiveMessageHandler(private val telegramClient: TelegramBotApi) : Handle
         {
             if (command.message == "/start" || command.message == "/help") {
                 telegramClient.bot.sendMessage(
-                    command.chatId,
+                    ChatId.fromId(command.chatId),
                     helpMessage
                 )
                 return
             }
 
             telegramClient.bot.sendMessage(
-                command.chatId,
+                ChatId.fromId(command.chatId),
                 "Type /help for more info"
             )
         }

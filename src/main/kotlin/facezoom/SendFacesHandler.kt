@@ -1,5 +1,6 @@
 package de.p4ddy.facezoombot.facezoom
 
+import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.TelegramFile
 import com.github.kotlintelegrambot.entities.inputmedia.GroupableMedia
 import com.github.kotlintelegrambot.entities.inputmedia.InputMediaPhoto
@@ -59,7 +60,7 @@ class SendFacesHandler(
     }
 
     private fun sendSinglePhoto(chatId: Long, fileList: List<File>) {
-        val response = this.telegramBotApi.bot.sendPhoto(chatId, fileList[0])
+        val response = this.telegramBotApi.bot.sendPhoto(ChatId.fromId(chatId), fileList[0])
         response.fold {
             throw RequestFailedException.fromResponseError(it)
         }
@@ -67,9 +68,9 @@ class SendFacesHandler(
 
     private fun sendMultiplePhotos(chatId: Long, faceMediaList: List<GroupableMedia>) {
         faceMediaList.chunked(10) { faceChunk ->
-            val response = telegramBotApi.bot.sendMediaGroup(chatId, MediaGroup.from(*faceChunk.toTypedArray()))
-            response.fold {
-                throw RequestFailedException.fromResponseError(it)
+            val response = telegramBotApi.bot.sendMediaGroup(ChatId.fromId(chatId), MediaGroup.from(*faceChunk.toTypedArray()))
+            if (response.isError) {
+                throw RequestFailedException("Could not send photos")
             }
         }
     }
